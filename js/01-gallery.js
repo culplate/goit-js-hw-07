@@ -2,6 +2,8 @@ import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
 const galleryCont = document.querySelector('.gallery');
+galleryCont.insertAdjacentHTML('beforeend', createMarkup(galleryItems));
+galleryCont.addEventListener('click', fullScreen);
 
 function createMarkup(arr) {
     return arr.map(({ preview, original, description }) => {
@@ -24,14 +26,18 @@ function fullScreen(event) {
 
     const instance = basicLightbox.create(`
         <img src="${event.target.dataset.source}">
-    `);
+    `, {
+        onClose: (instance) => document.removeEventListener('keydown', closeWithEsc)
+    });
+
+    function closeWithEsc(evt) {
+        if (instance.visible() && evt.key === "Escape") {
+            instance.close();
+        }
+    }
 
     event.preventDefault();
     instance.show();
-    document.addEventListener('keydown', evt => {
-        if (instance.visible() && evt.key === "Escape") instance.close();
-    });
+    document.addEventListener('keydown', closeWithEsc);
 }
 
-galleryCont.insertAdjacentHTML('beforeend', createMarkup(galleryItems));
-galleryCont.addEventListener('click', fullScreen); 
